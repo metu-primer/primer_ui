@@ -14,7 +14,8 @@ import SettingsDrawer from './components/SettingsDrawer';
 
 
 const LOCAL_STORAGE_KEY = 'savedUrls';
-const path_to_backend = "http://127.0.0.1:5000";
+export const BACKEND_URL =
+  process.env.REACT_APP_BACKEND_URL;
 
 function App() {
     const [query, setQuery] = useState('');
@@ -45,7 +46,7 @@ function App() {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const response = await fetch(`${path_to_backend}/settings`);
+                const response = await fetch(`${BACKEND_URL}/settings`);
                 if (!response.ok) throw new Error('Failed to fetch settings');
                 const data = await response.json();
 
@@ -97,7 +98,7 @@ function App() {
         setLoading(true);
         setSuggestedQuery(null);
         try {
-            const response = await axios.post(`${path_to_backend}/predict`, requestData);
+            const response = await axios.post(`${BACKEND_URL}/predict`, requestData);
             const images = response.data.images.map((image: { name: string; data: string }) => ({
                 name: image.name,
                 data: `data:image/jpeg;base64,${image.data}`
@@ -153,7 +154,7 @@ function App() {
         };
 
         try {
-            const response = await fetch(`${path_to_backend}/settings`, {
+            const response = await fetch(`${BACKEND_URL}/settings`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
