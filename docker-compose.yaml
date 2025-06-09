@@ -1,0 +1,21 @@
+services:
+
+  frontend: 
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: frontend
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/app
+      - /app/node_modules        # keep container’s deps intact
+    environment:
+      # Tell CRA to use your backend container’s hostname
+      - REACT_APP_BACKEND_URL=http://backend:5000
+    networks:
+      - primer-network
+
+networks:
+  primer-network:
+    driver: bridge
