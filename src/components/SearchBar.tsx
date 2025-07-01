@@ -9,10 +9,12 @@ interface SearchBarProps {
     disabled: boolean;
     suggestedQuery: string | null;
     onSuggestedQueryClick: (query: string) => void;
+    tooltipText: string;
+    
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({
-    query, onQueryChange, onSearch, loading, disabled, suggestedQuery, onSuggestedQueryClick
+    query, onQueryChange, onSearch, loading, disabled, suggestedQuery, onSuggestedQueryClick, tooltipText
 }) => (
     <div style={{ textAlign: 'center' }}>
         <input
@@ -31,7 +33,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
         />
         <div style={{ marginTop: '16px' }}>
             <Tooltip
-                title={!query ? 'Please enter a query' : ''}
+                title={tooltipText}
             >
                 <Button
                     type="primary"

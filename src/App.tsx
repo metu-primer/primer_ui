@@ -71,19 +71,22 @@ function App() {
         fetchSettings();
     }, []);
 
+    // In App component:
+
+    const getMissingFields = () => {
+        const missingFields: string[] = [];
+        if (!query) missingFields.push("query");
+        if (!selectedIndex) missingFields.push("index selection");
+        if (!url) missingFields.push("URL");
+        if (threshold === null || threshold === undefined) missingFields.push("threshold");
+        return missingFields;
+    };
+
+    const isSearchDisabled = getMissingFields().length > 0;
+
+    
     const handleSearch = async (newQuery?: string) => {
-        if (!query || !selectedIndex || !url) {
-            const missingFields: string[] = [];
-
-            if (!query) missingFields.push("query");
-            if (!selectedIndex) missingFields.push("index selection");
-            if (!url) missingFields.push("URL");
-            if (!threshold) missingFields.push("threshold");
-
-            message.warning(`Please fill in the following fields: ${missingFields.join(", ")}`);
-            return;
-        }
-
+        
         const requestData = {
             query: newQuery,
             selectedIndex: selectedIndex,
@@ -172,7 +175,15 @@ function App() {
     };
 
     return (
-        <div style={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+        
+
+        <div style={{ height: '100vh', 
+            display: 'flex', 
+            flexDirection: 'column', 
+            backgroundColor: '#f5f5f5',
+            backgroundImage: 'url("https://www.transparenttextures.com/patterns/white-wall-3.png")',
+            backgroundRepeat: 'repeat'  }}>
+            
             <Button
                 type="link"
                 icon={<QuestionCircleOutlined />}
@@ -207,24 +218,32 @@ function App() {
 
             
         <div style={{
+            flex: 1,  
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-            marginTop: '150px',
+            justifyContent: 'center',  
+            padding: '40px 20px'
         }}>
-            <SearchBar
+           <SearchBar
                 query={query}
                 onQueryChange={(e) => setQuery(e.target.value)}
                 onSearch={() => handleSearch(query)}
                 loading={loading}
-                disabled={!query || !selectedIndex || !url}
+                disabled={isSearchDisabled}
                 suggestedQuery={suggestedQuery}
                 onSuggestedQueryClick={(suggestedQuery) => {
                     setQuery(suggestedQuery);
                     handleSearch(suggestedQuery);
                     setSuggestedQuery(null);
                 }}
+                tooltipText={
+                    isSearchDisabled
+                        ? `Please fill in: ${getMissingFields().join(", ")}`
+                        : "Ready to search"
+                }
             />
+
 
             {imageUrls.length > 0 && (
                 <ImagesDisplay
@@ -255,11 +274,22 @@ function App() {
                     }
                 }}
                 onThresholdChange={(value) => setTempSettings(prev => ({ ...prev, threshold: value }))}
+                onKChange={(value) => setTempSettings(prev => ({ ...prev, k: value }))}
                 onDeviceChange={(e: RadioChangeEvent) => setTempSettings(prev => ({ ...prev, selectedDevice: e.target.value }))}
                 onFolderNameChange={(e) => setTempSettings(prev => ({ ...prev, folderName: e.target.value }))}
                 onSaveSettings={handleSaveSettings}
                 savedUrls={savedUrls}
             />
+            <footer style={{
+                textAlign: 'center',
+                padding: '20px',
+                fontSize: '14px',
+                color: '#888',
+                borderTop: '1px solid #eee',
+                marginBottom: '5px'
+            }}>
+                © 2025 Orta Doğu Teknik Üniversitesi
+            </footer>
         </div>
     );
 }

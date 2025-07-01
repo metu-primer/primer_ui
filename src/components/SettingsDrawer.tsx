@@ -17,6 +17,7 @@ interface SettingsDrawerProps {
     onUrlChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onFolderSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onThresholdChange: (value: number) => void;
+    onKChange: (value: number) => void;
     onDeviceChange: (e: any) => void;
     onFolderNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     onSaveSettings: () => void;
@@ -31,6 +32,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
     onUrlChange,
     onFolderSelect,
     onThresholdChange,
+    onKChange,
     onDeviceChange,
     onFolderNameChange,
     onSaveSettings,
@@ -65,7 +67,7 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
             <InputNumber
                 min={1}
                 value={tempSettings.k}
-                onChange={(value) => onThresholdChange(value ?? 1)}
+                onChange={(value) => onKChange(value ?? 1)}
                 style={{ width: '100%' }}
             />
         </div>
