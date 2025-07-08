@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button, Spin, Tooltip } from 'antd';
+import {  Spin, Tooltip } from 'antd';
+import PrimaryButton from './PrimaryButton';
 
 interface SearchBarProps {
     query: string;
@@ -35,20 +36,20 @@ const SearchBar: React.FC<SearchBarProps> = ({
             <Tooltip
                 title={tooltipText}
             >
-                <Button
+                <PrimaryButton
                     type="primary"
                     onClick={onSearch}
                     disabled={disabled}
-                    style={{ width: '150px' }}
+                    style={{ width: '175px' }}
                 >
                     {loading ? <Spin /> : 'Search'}
-                </Button>
+                </PrimaryButton>
             </Tooltip>
         </div>
 
         {suggestedQuery && (
             <div style={{ textAlign: 'center', marginTop: '10px' }}>
-                <p>Did you mean <Button type="link" onClick={() => onSuggestedQueryClick(suggestedQuery)}>{suggestedQuery}</Button>?</p>
+                <p>Did you mean <PrimaryButton type="link" onClick={() => onSuggestedQueryClick(suggestedQuery)}>{suggestedQuery}</PrimaryButton>?</p>
             </div>
         )}
     </div>

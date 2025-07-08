@@ -1,6 +1,7 @@
 import React from 'react';
-import { Drawer, Tooltip, Radio, InputNumber, Input, Button, Slider } from 'antd';
+import { Drawer, Tooltip, Radio, InputNumber, Input, Slider } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
+import PrimaryButton from './PrimaryButton';
 
 interface SettingsDrawerProps {
     visible: boolean;
@@ -109,12 +110,12 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
                 onChange={onFolderSelect}
                 style={{ display: 'none' }}
             />
-            <Button
+            <PrimaryButton
                 onClick={() => document.getElementById("folderInput")?.click()}
-                style={{ width: '160px', marginTop: '8px' }}
+                style={{ width: '120px', marginTop: '8px' }}
             >
                 Select Folder
-            </Button>
+            </PrimaryButton>
         </div>
 
 
@@ -165,9 +166,9 @@ const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
 
         {/* Save Settings */}
         <div style={{ marginTop: '20px' }}>
-            <Button type="primary" onClick={onSaveSettings}>
+            <PrimaryButton type="primary" onClick={onSaveSettings}>
                 Save Settings
-            </Button>
+            </PrimaryButton>
         </div>
     </Drawer>
 );

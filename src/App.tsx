@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import { Button, message, Spin } from 'antd';
+import {  message, Spin } from 'antd';
+import PrimaryButton from './components/PrimaryButton';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { RadioChangeEvent } from 'antd/es/radio';
 
@@ -11,6 +12,24 @@ import HowToUseDrawer from './components/HowToUseDrawer';
 import SearchBar from './components/SearchBar';
 import ImagesDisplay from './components/ImagesDisplay';
 import SettingsDrawer from './components/SettingsDrawer';
+
+
+const showBackendError = (
+  err: unknown,
+  fallback = "An unexpected error occurred."
+) => {
+  if (axios.isAxiosError(err)) {
+    const specific =
+      err.response?.data?.error ||
+      err.response?.data?.message ||
+      err.message;
+
+    message.error(specific || fallback, 4);  
+    return;
+  }
+
+  message.error(fallback, 4);
+};
 
 
 const LOCAL_STORAGE_KEY = 'savedUrls';
@@ -65,7 +84,8 @@ function App() {
                 setThreshold(data.threshold || 0);
                 setSelectedDevice(data.selectedDevice || '');
             } catch (error) {
-                console.error('Error fetching settings:', error);
+                console.error(error);
+                showBackendError(error, "Failed to load saved settings."); 
             }
         };
 
@@ -107,13 +127,14 @@ function App() {
                 data: `data:image/jpeg;base64,${image.data}`
             }));
             setImageUrls(images);
+            setShowImages(true);
             if (newQuery !== response.data.query) {
                 setSuggestedQuery(response.data.query);
             }
             message.success("Images fetched successfully!");
         } catch (error) {
-            console.error('Error during API call:', error);
-            message.error("Failed to fetch images. Please try again.");
+            console.error(error);
+            showBackendError(error, "Failed to fetch images.");   
         } finally {
             setLoading(false);
         }
@@ -171,7 +192,8 @@ function App() {
             setModalVisible(false);
             message.success(result.message || "Settings saved successfully!");
         } catch (error) {
-            message.error("Error saving settings.");
+            console.error(error);
+            showBackendError(error, "Error saving settings.");     
         }
     };
 
@@ -185,7 +207,7 @@ function App() {
             backgroundImage: 'url("https://www.transparenttextures.com/patterns/white-wall-3.png")',
             backgroundRepeat: 'repeat'  }}>
             
-            <Button
+            <PrimaryButton
                 type="link"
                 icon={<QuestionCircleOutlined />}
                 onClick={() => setShowHowtoUse(!showHowtoUse)}
@@ -197,7 +219,7 @@ function App() {
                 }}
             >
                 How to Use
-            </Button>
+            </PrimaryButton>
 
             <Header onSettingsClick={() => {
                 setTempSettings({

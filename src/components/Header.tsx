@@ -1,5 +1,6 @@
 import React from 'react';
-import { Button } from 'antd';
+import PrimaryButton from './PrimaryButton';
+
 import { SettingOutlined } from '@ant-design/icons';
 import logo from '../assets/ceng-logo.png';
 
@@ -39,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => (
             Configure your settings, enter a query, and start your image search!
         </p>
 
-        <Button
+        <PrimaryButton 
             type="link"
             icon={<SettingOutlined />}
             onClick={onSettingsClick}
@@ -50,7 +51,7 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => (
             }}
         >
             Settings
-        </Button>
+        </PrimaryButton >
     </header>
 );
 

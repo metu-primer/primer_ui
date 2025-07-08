@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button } from 'antd';
+import PrimaryButton from './PrimaryButton'
 
 interface ImagesDisplayProps {
     images: { name: string; data: string }[];
@@ -12,23 +12,20 @@ interface ImagesDisplayProps {
 const ImagesDisplay: React.FC<ImagesDisplayProps> = ({ images, showImages, setShowImages, onDownloadZip, k }) => (
     <div style={{ textAlign: 'center', marginTop: '16px' }}>
         <div style={{ marginBottom: '30px' }}>
-            <Button
+            <PrimaryButton
                 type="primary"
                 onClick={() => setShowImages(!showImages)}
                 style={{
-                    width: '200px',
-                    backgroundColor: 'white',
-                    borderColor: 'blue',
-                    color: 'blue',
+                    width: '175px',
                 }}
             >
                 {showImages ? 'Hide Images' : 'Show Returned Images'}
-            </Button>
+            </PrimaryButton>
         </div>
 
         {showImages && (
             <>
-                <h3>Generated Images:</h3>
+                <h3>Found Images:</h3>
                 <div
                     style={{
                         display: 'flex',
@@ -49,19 +46,16 @@ const ImagesDisplay: React.FC<ImagesDisplayProps> = ({ images, showImages, setSh
                     ))}
                 </div>
 
-                <Button
+                <PrimaryButton
                     type="primary"
                     onClick={onDownloadZip}
                     style={{
-                        width: '200px',
+                        width: '175px',
                         marginTop: '16px',
-                        backgroundColor: 'white',
-                        borderColor: 'blue',
-                        color: 'blue',
                     }}
                 >
                     Download All as Zip
-                </Button>
+                </PrimaryButton>
             </>
         )}
     </div>
