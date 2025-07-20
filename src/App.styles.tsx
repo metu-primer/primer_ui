@@ -1,3 +1,9 @@
+// Copyright © 2025
+// Sinan Kalkan, Ahmet Kılavuz, Alperen Ovak, Ali Özçelik, Feyza Yavuz
+// This file is part of the Image Search Engine project.
+// Licensed under the Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)
+// https://creativecommons.org/licenses/by-nc/4.0/
+
 import styled from 'styled-components';
 
 export const Container = styled.div`
