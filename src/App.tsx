@@ -75,6 +75,11 @@ function App() {
                 if (!response.ok) throw new Error('Failed to fetch settings');
                 const data = await response.json();
 
+                if (data.warnings && data.warnings.length > 0) {
+                    console.warn("Backend warnings:", data.warnings);
+                    throw new Error("Some issues occurred: " + data.warnings.join(", "));
+                }
+
                 setTempSettings(prev => ({
                     ...prev,
                     k: data.k || 1,
@@ -195,6 +200,12 @@ function App() {
             if (!response.ok) throw new Error('Failed to save settings');
 
             const result = await response.json();
+
+            if (result.warnings && result.warnings.length > 0) {
+                console.warn("Backend warnings:", result.warnings);
+                throw new Error("Some issues occurred: " + result.warnings.join(", "));
+            }
+
             setModalVisible(false);
             message.success(result.message || "Settings saved successfully!");
         } catch (error) {
