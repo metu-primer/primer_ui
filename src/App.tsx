@@ -18,6 +18,8 @@ import HowToUseDrawer from './components/HowToUseDrawer';
 import SearchBar from './components/SearchBar';
 import ImagesDisplay from './components/ImagesDisplay';
 import SettingsDrawer from './components/SettingsDrawer';
+import HomePageSettings from './components/HomePageSettings';
+
 
 
 const showBackendError = (
@@ -45,7 +47,7 @@ export const BACKEND_URL =
 function App() {
     const [query, setQuery] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
-    const [selectedIndex, setSelectedIndex] = useState<string | null>(null);
+    const [selectedIndex, setSelectedIndex] = useState<string | null>("IndexFlatL2");
     const [url, setUrl] = useState('');
     const [savedUrls, setSavedUrls] = useState<string[]>([]);
     const [imageUrls, setImageUrls] = useState<{ name: string; data: string }[]>([]);
@@ -128,7 +130,7 @@ function App() {
             k: k
         };
         
-
+        setSavedUrls(requestData.url);
         setLoading(true);
         setSuggestedQuery(null);
         try {
@@ -169,15 +171,7 @@ function App() {
         setThreshold(tempSettings.threshold);
         setSelectedDevice(tempSettings.selectedDevice);
         
-        const updatedSavedUrls = Array.isArray(savedUrls) ? [...savedUrls] : [];
-        if (tempSettings.url && !updatedSavedUrls.includes(tempSettings.url)) {
-            updatedSavedUrls.unshift(tempSettings.url);
-            if (updatedSavedUrls.length > 3) {
-                updatedSavedUrls.pop();
-            }
-            setSavedUrls(updatedSavedUrls);
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(updatedSavedUrls));
-        }
+        
         
         const settings = {
             k: tempSettings.k,
@@ -217,12 +211,15 @@ function App() {
     return (
         
 
-        <div style={{ height: '100vh', 
-            display: 'flex', 
-            flexDirection: 'column', 
+        <div style={{ 
+            minHeight: '100vh',
+            paddingBottom: '32px',
             backgroundColor: '#f5f5f5',
             backgroundImage: 'url("https://www.transparenttextures.com/patterns/white-wall-3.png")',
-            backgroundRepeat: 'repeat'  }}>
+            backgroundRepeat: 'repeat',
+            backgroundAttachment: 'fixed', // Optional: makes it more elegant on scroll
+        }}>
+
             
             <PrimaryButton
                 type="link"
@@ -261,10 +258,18 @@ function App() {
             flex: 1,  
             display: 'flex',
             flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',  
             padding: '40px 20px'
         }}>
+            <HomePageSettings
+                url={url}
+                setUrl={setUrl}
+                savedUrls={savedUrls}
+                k={k}
+                setk={setk}
+                threshold={threshold}
+                setThreshold={setThreshold}
+                />
+
            <SearchBar
                 query={query}
                 onQueryChange={(e) => setQuery(e.target.value)}
@@ -282,6 +287,7 @@ function App() {
                         ? `Please fill in: ${getMissingFields().join(", ")}`
                         : "Ready to search"
                 }
+                
             />
 
 
