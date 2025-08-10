@@ -3,6 +3,7 @@ import { Tooltip, Input, Radio, InputNumber, Slider } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import PrimaryButton from './PrimaryButton';
 import { useTranslation } from 'react-i18next';
+import { BACKEND_URL } from '../App';
 
 interface HomePageSettingsProps {
   url: string;
@@ -34,6 +35,18 @@ const infoIconStyle = {
 
 const HomePageSettings: React.FC<HomePageSettingsProps> = ({ url, setUrl, savedUrls, k, setk, threshold, setThreshold }) => {
     const { t } = useTranslation();
+
+    const handleSelectFolder = async () => {
+      const res = await fetch(`${BACKEND_URL}/select-folder`);
+      const data = await res.json();
+      if (data.path) {
+        setUrl(data.path); // Set the selected folder path to the URL state
+        // TODO Ahmet: give success message
+      } else {
+        console.log("No folder selected");
+        // TODO Ahmet: give error message
+      }
+    };
 
     return (
     <div style={{ width: '100%', marginTop: '8px', marginBottom: '24px' }}>
@@ -95,7 +108,7 @@ const HomePageSettings: React.FC<HomePageSettingsProps> = ({ url, setUrl, savedU
           />
 
           <PrimaryButton
-            onClick={() => document.getElementById("folderInput")?.click()}
+            onClick={handleSelectFolder}
             style={{ width: '100%', marginTop: '8px' }}
           >
             Select Folder
