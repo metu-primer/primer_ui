@@ -8,10 +8,16 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
-import {  message, Spin } from 'antd';
+import { Button, message } from 'antd';
 import PrimaryButton from './components/PrimaryButton';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { RadioChangeEvent } from 'antd/es/radio';
+import trFlag from './assets/turkey.png';
+import gbFlag from './assets/united-kingdom.png';
+// i18n
+import './i18n'; // ensure i18n is initialized once in the app
+import i18n from 'i18next';
+import { useTranslation } from 'react-i18next';
 
 import Header from './components/Header';
 import HowToUseDrawer from './components/HowToUseDrawer';
@@ -20,34 +26,32 @@ import ImagesDisplay from './components/ImagesDisplay';
 import SettingsDrawer from './components/SettingsDrawer';
 import HomePageSettings from './components/HomePageSettings';
 
-
-
 const showBackendError = (
-  err: unknown,
-  fallback = "An unexpected error occurred."
+    err: unknown,
+    fallback = i18n.t('msg_unexpected_error')
 ) => {
-  if (axios.isAxiosError(err)) {
-    const specific =
-      err.response?.data?.error ||
-      err.response?.data?.message ||
-      err.message;
+    if (axios.isAxiosError(err)) {
+        const specific =
+            (err.response?.data as any)?.error ||
+            (err.response?.data as any)?.message ||
+            err.message;
 
-    message.error(specific || fallback, 4);  
-    return;
-  }
+        message.error(specific || fallback, 4);
+        return;
+    }
 
-  message.error(fallback, 4);
+    message.error(fallback, 4);
 };
 
-
-const LOCAL_STORAGE_KEY = 'savedUrls';
-export const BACKEND_URL =
-  process.env.REACT_APP_BACKEND_URL;
+export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 function App() {
+    const { t, i18n } = useTranslation();
+    const currentLang = i18n.language;
+
     const [query, setQuery] = useState('');
     const [modalVisible, setModalVisible] = useState(false);
-    const [selectedIndex, setSelectedIndex] = useState<string | null>("IndexFlatL2");
+    const [selectedIndex, setSelectedIndex] = useState<string | null>('IndexFlatL2');
     const [url, setUrl] = useState('');
     const [savedUrls, setSavedUrls] = useState<string[]>([]);
     const [imageUrls, setImageUrls] = useState<{ name: string; data: string }[]>([]);
@@ -74,15 +78,15 @@ function App() {
         const fetchSettings = async () => {
             try {
                 const response = await fetch(`${BACKEND_URL}/settings`);
-                if (!response.ok) throw new Error('Failed to fetch settings');
+                if (!response.ok) throw new Error(t('msg_failed_fetch_settings'));
                 const data = await response.json();
 
                 if (data.warnings && data.warnings.length > 0) {
-                    console.warn("Backend warnings:", data.warnings);
-                    throw new Error("Some issues occurred: " + data.warnings.join(", "));
+                    console.warn('Backend warnings:', data.warnings);
+                    throw new Error(`${t('msg_backend_issues_prefix')}${data.warnings.join(', ')}`);
                 }
 
-                setTempSettings(prev => ({
+                setTempSettings((prev) => ({
                     ...prev,
                     k: data.k || 1,
                     selectedIndex: data.selectedIndex || null,
@@ -98,38 +102,35 @@ function App() {
                 setSelectedDevice(data.selectedDevice || '');
             } catch (error) {
                 console.error(error);
-                showBackendError(error, "Failed to load saved settings."); 
+                showBackendError(error, t('msg_failed_load_settings'));
             }
         };
 
         fetchSettings();
-    }, []);
 
-    // In App component:
+    }, []);
 
     const getMissingFields = () => {
         const missingFields: string[] = [];
-        if (!query) missingFields.push("query");
-        if (!selectedIndex) missingFields.push("index selection");
-        if (!url) missingFields.push("URL");
-        if (threshold === null || threshold === undefined) missingFields.push("threshold");
+        if (!query) missingFields.push(t('missing_field.query'));
+        if (!selectedIndex) missingFields.push(t('missing_field.index_selection'));
+        if (!url) missingFields.push(t('missing_field.url'));
+        if (threshold === null || threshold === undefined) missingFields.push(t('missing_field.threshold'));
         return missingFields;
     };
 
     const isSearchDisabled = getMissingFields().length > 0;
 
-    
     const handleSearch = async (newQuery?: string) => {
-        
         const requestData = {
             query: newQuery,
             selectedIndex: selectedIndex,
             url: [url].concat(savedUrls.slice(0, 2)),
             threshold: threshold,
             selectedDevice: selectedDevice,
-            k: k
+            k: k,
         };
-        
+
         setSavedUrls(requestData.url);
         setLoading(true);
         setSuggestedQuery(null);
@@ -137,17 +138,17 @@ function App() {
             const response = await axios.post(`${BACKEND_URL}/predict`, requestData);
             const images = response.data.images.map((image: { name: string; data: string }) => ({
                 name: image.name,
-                data: `data:image/jpeg;base64,${image.data}`
+                data: `data:image/jpeg;base64,${image.data}`,
             }));
             setImageUrls(images);
             setShowImages(true);
             if (newQuery !== response.data.query) {
                 setSuggestedQuery(response.data.query);
             }
-            message.success("Images fetched successfully!");
+            message.success(t('msg_images_fetched'));
         } catch (error) {
             console.error(error);
-            showBackendError(error, "Failed to fetch images.");   
+            showBackendError(error, t('msg_failed_fetch_images'));
         } finally {
             setLoading(false);
         }
@@ -170,9 +171,7 @@ function App() {
         setk(tempSettings.k);
         setThreshold(tempSettings.threshold);
         setSelectedDevice(tempSettings.selectedDevice);
-        
-        
-        
+
         const settings = {
             k: tempSettings.k,
             selectedIndex: tempSettings.selectedIndex,
@@ -191,36 +190,92 @@ function App() {
                 body: JSON.stringify(settings),
             });
 
-            if (!response.ok) throw new Error('Failed to save settings');
+            if (!response.ok) throw new Error(t('msg_error_saving_settings'));
 
             const result = await response.json();
 
             if (result.warnings && result.warnings.length > 0) {
-                console.warn("Backend warnings:", result.warnings);
-                throw new Error("Some issues occurred: " + result.warnings.join(", "));
+                console.warn('Backend warnings:', result.warnings);
+                throw new Error(`${t('msg_backend_issues_prefix')}${result.warnings.join(', ')}`);
             }
 
             setModalVisible(false);
-            message.success(result.message || "Settings saved successfully!");
+            message.success(result.message || t('msg_settings_saved'));
         } catch (error) {
             console.error(error);
-            showBackendError(error, "Error saving settings.");     
+            showBackendError(error, t('msg_error_saving_settings'));
         }
     };
 
     return (
-        
+        <div
+            style={{
+                minHeight: '100vh',
+                display: 'flex',
+                flexDirection: 'column',
+                backgroundColor: '#f5f5f5',
+                backgroundImage: 'url("https://www.transparenttextures.com/patterns/white-wall-3.png")',
+                backgroundRepeat: 'repeat',
+                backgroundAttachment: 'fixed',
+            }}
+        >
+            <div
+                style={{
+                    position: 'absolute',
+                    top: 16,
+                    right: "12%",
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 8,
+                    zIndex: 1000,
+                    border: '1px solid #1890ff',
+                    borderRadius: '6px',
+                    padding: '4px 8px',
+                    backgroundColor: '#fff',
+                    boxShadow: '0 2px 6px rgba(0, 0, 0, 0.1)'
+                }}
+            >
+                <span style={{ fontWeight: 'bold', color: '#1890ff' }}>{t('language_label')}:</span>
 
-        <div style={{ 
-            minHeight: '100vh',
-            paddingBottom: '32px',
-            backgroundColor: '#f5f5f5',
-            backgroundImage: 'url("https://www.transparenttextures.com/patterns/white-wall-3.png")',
-            backgroundRepeat: 'repeat',
-            backgroundAttachment: 'fixed', // Optional: makes it more elegant on scroll
-        }}>
+                <Button
+                    onClick={() => i18n.changeLanguage('tr')}
+                    style={{
+                        padding: 0,
+                        width: 40,
+                        height: 30,
+                        borderRadius: '6px',
+                        backgroundColor: currentLang === 'tr' ? '#e6f7ff' : 'transparent',
+                        border: currentLang === 'tr' ? '2px solid #1890ff' : '1px solid #d9d9d9'
+                    }}
+                >
+                    <img
+                        src={trFlag}
+                        alt="Turkish"
+                        style={{ width: '100%', height: '100%', borderRadius: '6px', objectFit: 'cover' }}
+                    />
+                </Button>
 
-            
+                <Button
+                    onClick={() => i18n.changeLanguage('en')}
+                    style={{
+                        padding: 0,
+                        width: 40,
+                        height: 30,
+                        borderRadius: '6px',
+                        backgroundColor: currentLang === 'en' ? '#e6f7ff' : 'transparent',
+                        border: currentLang === 'en' ? '2px solid #1890ff' : '1px solid #d9d9d9'
+                    }}
+                >
+                    <img
+                        src={gbFlag}
+                        alt="English"
+                        style={{ width: '100%', height: '100%', borderRadius: '6px', objectFit: 'cover' }}
+                    />
+                </Button>
+            </div>
+
+
+
             <PrimaryButton
                 type="link"
                 icon={<QuestionCircleOutlined />}
@@ -232,109 +287,111 @@ function App() {
                     zIndex: 1000,
                 }}
             >
-                How to Use
+                {t('how_to_use')}
             </PrimaryButton>
 
-            <Header onSettingsClick={() => {
-                setTempSettings({
-                    selectedIndex: selectedIndex,
-                    url: url,
-                    k: k,
-                    threshold: threshold,
-                    selectedDevice: selectedDevice,
-                    savedUrls: savedUrls,
-                    folderName: tempSettings.folderName,
-                });
-                setModalVisible(true);
-            }} />
-
-            <HowToUseDrawer
-                visible={showHowtoUse}
-                onClose={() => setShowHowtoUse(false)}
-            />
-
-            
-        <div style={{
-            flex: 1,  
-            display: 'flex',
-            flexDirection: 'column',
-            padding: '40px 20px'
-        }}>
-            <HomePageSettings
-                url={url}
-                setUrl={setUrl}
-                savedUrls={savedUrls}
-                k={k}
-                setk={setk}
-                threshold={threshold}
-                setThreshold={setThreshold}
-                />
-
-           <SearchBar
-                query={query}
-                onQueryChange={(e) => setQuery(e.target.value)}
-                onSearch={() => handleSearch(query)}
-                loading={loading}
-                disabled={isSearchDisabled}
-                suggestedQuery={suggestedQuery}
-                onSuggestedQueryClick={(suggestedQuery) => {
-                    setQuery(suggestedQuery);
-                    handleSearch(suggestedQuery);
-                    setSuggestedQuery(null);
+            <Header
+                onSettingsClick={() => {
+                    setTempSettings({
+                        selectedIndex: selectedIndex,
+                        url: url,
+                        k: k,
+                        threshold: threshold,
+                        selectedDevice: selectedDevice,
+                        savedUrls: savedUrls,
+                        folderName: tempSettings.folderName,
+                    });
+                    setModalVisible(true);
                 }}
-                tooltipText={
-                    isSearchDisabled
-                        ? `Please fill in: ${getMissingFields().join(", ")}`
-                        : "Ready to search"
-                }
-                
             />
 
+            <HowToUseDrawer visible={showHowtoUse} onClose={() => setShowHowtoUse(false)} />
 
-            {imageUrls.length > 0 && (
-                <ImagesDisplay
-                    images={imageUrls}
-                    showImages={showImages}
-                    setShowImages={setShowImages}
-                    onDownloadZip={handleDownloadZip}
+            <div
+                style={{
+                    flex: 1,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    padding: '40px 20px',
+                }}
+            >
+                <HomePageSettings
+                    url={url}
+                    setUrl={setUrl}
+                    savedUrls={savedUrls}
                     k={k}
+                    setk={setk}
+                    threshold={threshold}
+                    setThreshold={setThreshold}
                 />
-            )}
-        </div>
 
+                <SearchBar
+                    query={query}
+                    onQueryChange={(e) => setQuery(e.target.value)}
+                    onSearch={() => handleSearch(query)}
+                    loading={loading}
+                    disabled={isSearchDisabled}
+                    suggestedQuery={suggestedQuery}
+                    onSuggestedQueryClick={(sq) => {
+                        setQuery(sq);
+                        handleSearch(sq);
+                        setSuggestedQuery(null);
+                    }}
+                    tooltipText={
+                        isSearchDisabled
+                            ? t('tooltip_fill_in', { fields: getMissingFields().join(', ') })
+                            : t('tooltip_ready')
+                    }
+                />
 
-            
+                {imageUrls.length > 0 && (
+                    <ImagesDisplay
+                        images={imageUrls}
+                        showImages={showImages}
+                        setShowImages={setShowImages}
+                        onDownloadZip={handleDownloadZip}
+                        k={k}
+                    />
+                )}
+            </div>
 
             <SettingsDrawer
                 visible={modalVisible}
                 onClose={() => setModalVisible(false)}
                 tempSettings={tempSettings}
-                onIndexChange={(e: RadioChangeEvent) => setTempSettings(prev => ({ ...prev, selectedIndex: e.target.value }))}
-                onUrlChange={(e) => setTempSettings(prev => ({ ...prev, url: e.target.value }))}
+                onIndexChange={(e: RadioChangeEvent) =>
+                    setTempSettings((prev) => ({ ...prev, selectedIndex: e.target.value }))
+                }
+                onUrlChange={(e) => setTempSettings((prev) => ({ ...prev, url: e.target.value }))}
                 onFolderSelect={(e) => {
-                    const files = e.target.files;
+                    const files = (e.target as HTMLInputElement).files;
                     if (files && files.length > 0) {
-                        const folderPath = files[0].webkitRelativePath.split('/')[0];
+                        const folderPath = (files[0] as any).webkitRelativePath.split('/')[0];
                         setUrl(folderPath);
-                        setTempSettings(prev => ({ ...prev, url: folderPath }));
+                        setTempSettings((prev) => ({ ...prev, url: folderPath }));
                     }
                 }}
-                onThresholdChange={(value) => setTempSettings(prev => ({ ...prev, threshold: value }))}
-                onKChange={(value) => setTempSettings(prev => ({ ...prev, k: value }))}
-                onDeviceChange={(e: RadioChangeEvent) => setTempSettings(prev => ({ ...prev, selectedDevice: e.target.value }))}
-                onFolderNameChange={(e) => setTempSettings(prev => ({ ...prev, folderName: e.target.value }))}
+                onThresholdChange={(value) => setTempSettings((prev) => ({ ...prev, threshold: value }))}
+                onKChange={(value) => setTempSettings((prev) => ({ ...prev, k: value }))}
+                onDeviceChange={(e: RadioChangeEvent) =>
+                    setTempSettings((prev) => ({ ...prev, selectedDevice: e.target.value }))
+                }
+                onFolderNameChange={(e) => setTempSettings((prev) => ({ ...prev, folderName: e.target.value }))}
                 onSaveSettings={handleSaveSettings}
                 savedUrls={savedUrls}
             />
-            <footer style={{
-                textAlign: 'center',
-                padding: '20px',
-                fontSize: '14px',
-                color: '#888',
-                borderTop: '1px solid #eee',
-                marginBottom: '5px'
-            }}>
-                © 2025 Orta Doğu Teknik Üniversitesi
+
+            <footer
+                style={{
+                    textAlign: 'center',
+                    padding: '20px',
+                    fontSize: '14px',
+                    color: '#888',
+                    borderTop: '1px solid #eee',
+                    marginBottom: '5px',
+                }}
+            >
+                {t('footer_copyright')}
             </footer>
         </div>
     );

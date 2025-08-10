@@ -5,7 +5,8 @@
 // https://creativecommons.org/licenses/by-nc/4.0/
 
 import React from 'react';
-import PrimaryButton from './PrimaryButton'
+import PrimaryButton from './PrimaryButton';
+import { useTranslation } from 'react-i18next';
 
 interface ImagesDisplayProps {
     images: { name: string; data: string }[];
@@ -15,57 +16,58 @@ interface ImagesDisplayProps {
     k: number | null;
 }
 
-const ImagesDisplay: React.FC<ImagesDisplayProps> = ({ images, showImages, setShowImages, onDownloadZip, k }) => (
-    <div style={{ textAlign: 'center', marginTop: '16px' }}>
-        <div style={{ marginBottom: '30px' }}>
-            <PrimaryButton
-                type="primary"
-                onClick={() => setShowImages(!showImages)}
-                style={{
-                    width: '175px',
-                }}
-            >
-                {showImages ? 'Hide Images' : 'Show Returned Images'}
-            </PrimaryButton>
-        </div>
+const ImagesDisplay: React.FC<ImagesDisplayProps> = ({
+                                                         images,
+                                                         showImages,
+                                                         setShowImages,
+                                                         onDownloadZip,
+                                                         k,
+                                                     }) => {
+    const { t } = useTranslation();
 
-        {showImages && (
-            <>
-                <h3>Found Images:</h3>
-                <div
-                    style={{
-                        display: 'flex',
-                        flexWrap: 'wrap',
-                        justifyContent: 'center',
-                    }}
-                >
-                    {images.slice(0, k ?? 1).map((image, index) => (
-                        <img
-                            key={index}
-                            src={image.data}
-                            alt={`Generated ${index}`}
-                            style={{
-                                maxWidth: '150px',
-                                margin: '10px',
-                            }}
-                        />
-                    ))}
-                </div>
-
+    return (
+        <div style={{ textAlign: 'center', marginTop: '16px' }}>
+            <div style={{ marginBottom: '30px' }}>
                 <PrimaryButton
                     type="primary"
-                    onClick={onDownloadZip}
-                    style={{
-                        width: '175px',
-                        marginTop: '16px',
-                    }}
+                    onClick={() => setShowImages(!showImages)}
+                    style={{ width: '175px' }}
                 >
-                    Download All as Zip
+                    {showImages ? t('images_display.hide_images') : t('images_display.show_returned_images')}
                 </PrimaryButton>
-            </>
-        )}
-    </div>
+            </div>
 
-);
+            {showImages && (
+                <>
+                    <h3>{t('images_display.found_images')}</h3>
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexWrap: 'wrap',
+                            justifyContent: 'center',
+                        }}
+                    >
+                        {images.slice(0, k ?? 1).map((image, index) => (
+                            <img
+                                key={index}
+                                src={image.data}
+                                alt={t('images_display.image_alt', { index })}
+                                style={{ maxWidth: '150px', margin: '10px' }}
+                            />
+                        ))}
+                    </div>
+
+                    <PrimaryButton
+                        type="primary"
+                        onClick={onDownloadZip}
+                        style={{ width: '175px', marginTop: '16px' }}
+                    >
+                        {t('images_display.download_all_zip')}
+                    </PrimaryButton>
+                </>
+            )}
+        </div>
+    );
+};
 
 export default ImagesDisplay;

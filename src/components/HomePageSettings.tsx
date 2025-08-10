@@ -2,6 +2,7 @@ import React from 'react';
 import { Tooltip, Input, Radio, InputNumber, Slider } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import PrimaryButton from './PrimaryButton';
+import { useTranslation } from 'react-i18next';
 
 interface HomePageSettingsProps {
   url: string;
@@ -32,16 +33,18 @@ const infoIconStyle = {
 };
 
 const HomePageSettings: React.FC<HomePageSettingsProps> = ({ url, setUrl, savedUrls, k, setk, threshold, setThreshold }) => {
-  return (
+    const { t } = useTranslation();
+
+    return (
     <div style={{ width: '100%', marginTop: '8px', marginBottom: '24px' }}>
       <div style={{ display: 'flex', gap: '16px', justifyContent: 'center', flexWrap: 'wrap' }}>
 
         {/* Number of Images */}
         <div style={sectionStyle}>
-          <Tooltip title="This is the number of images that will be displayed on the screen.">
+            <Tooltip title={t('home_page_settings.tooltip_number_images')}>
             <InfoCircleOutlined style={infoIconStyle} />
           </Tooltip>
-          <h4>Number of Images</h4>
+            <h4>{t('home_page_settings.number_images')}</h4>
           <InputNumber
             min={1}
             value={k || 1}
@@ -53,12 +56,12 @@ const HomePageSettings: React.FC<HomePageSettingsProps> = ({ url, setUrl, savedU
 
         {/* URL Selection */}
         <div style={sectionStyle}>
-          <Tooltip title="Enter the URL of the folder that contains images to find similarities.">
+          <Tooltip title={t('home_page_settings.tooltip_url')}>
             <InfoCircleOutlined style={infoIconStyle} />
           </Tooltip>
-          <h4>URL</h4>
+          <h4>{t('home_page_settings.url')}</h4>
           <Input
-            placeholder="Enter URL manually"
+            placeholder={t('home_page_settings.url_manuel')}
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             style={{ width: '100%', marginBottom: 4 }}
@@ -101,10 +104,10 @@ const HomePageSettings: React.FC<HomePageSettingsProps> = ({ url, setUrl, savedU
 
         {/* Threshold */}
         <div style={sectionStyle}>
-          <Tooltip title="Set the similarity threshold for image matching.">
+          <Tooltip title={t('home_page_settings.tooltip_threshold')}>
             <InfoCircleOutlined style={infoIconStyle} />
           </Tooltip>
-          <h4>Threshold: <span style={{ fontWeight: 'normal' }}>{threshold}</span></h4>
+          <h4>{t('home_page_settings.threshold')}: <span style={{ fontWeight: 'normal' }}>{threshold}</span></h4>
           <Slider
             min={-1}
             max={1}

@@ -5,10 +5,10 @@
 // https://creativecommons.org/licenses/by-nc/4.0/
 
 import React from 'react';
-import { Drawer, Tooltip, Radio, InputNumber, Input, Slider } from 'antd';
+import { Drawer, Tooltip, Radio, Input } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import PrimaryButton from './PrimaryButton';
-
+import { useTranslation } from 'react-i18next';
 
 interface SettingsDrawerProps {
     visible: boolean;
@@ -33,76 +33,78 @@ interface SettingsDrawerProps {
 }
 
 const SettingsDrawer: React.FC<SettingsDrawerProps> = ({
-    visible,
-    onClose,
-    tempSettings,
-    onIndexChange,
-    onUrlChange,
-    onFolderSelect,
-    onThresholdChange,
-    onKChange,
-    onDeviceChange,
-    onFolderNameChange,
-    onSaveSettings,
-    savedUrls,
-}) => (
-    <Drawer
-        title="Settings"
-        placement="right"
-        visible={visible}
-        onClose={onClose}
-        width={400}
-    >
-        {/* Select Index */}
-        <div style={sectionStyle}>
-            <Tooltip title="Select the indexing type for your search.">
-                <InfoCircleOutlined style={infoIconStyle} />
-            </Tooltip>
-            <h3>Select Index</h3>
-            <Radio.Group onChange={onIndexChange} value={tempSettings.selectedIndex}>
-                <Radio value="IndexIVFPQ">IndexIVFPQ</Radio>
-                <Radio value="IndexFlatL2">IndexFlatL2</Radio>
-                <Radio value="IndexIVFFlat">IndexIVFFlat</Radio>
-            </Radio.Group>
-        </div>
+                                                           visible,
+                                                           onClose,
+                                                           tempSettings,
+                                                           onIndexChange,
+                                                           onUrlChange,
+                                                           onFolderSelect,
+                                                           onThresholdChange,
+                                                           onKChange,
+                                                           onDeviceChange,
+                                                           onFolderNameChange,
+                                                           onSaveSettings,
+                                                           savedUrls,
+                                                       }) => {
+    const { t } = useTranslation();
 
-        {/* Select Device */}
-        <div style={sectionStyle}>
-            <Tooltip title="Choose between CPU or GPU for processing.">
-                <InfoCircleOutlined style={infoIconStyle} />
-            </Tooltip>
-            <h3>Select Device</h3>
-            <Radio.Group
-                onChange={onDeviceChange}
-                value={tempSettings.selectedDevice}
-            >
-                <Radio value="cpu">CPU</Radio>
-                <Radio value="gpu">GPU</Radio>
-            </Radio.Group>
-        </div>
+    return (
+        <Drawer
+            title={t('settings_drawer.title')}
+            placement="right"
+            // AntD v5 uses `open` instead of `visible`; keep prop name for callers but map here
+            open={visible}
+            onClose={onClose}
+            width={400}
+        >
+            {/* Select Index */}
+            <div style={sectionStyle}>
+                <Tooltip title={t('settings_drawer.select_index.tooltip')}>
+                    <InfoCircleOutlined style={infoIconStyle} />
+                </Tooltip>
+                <h3>{t('settings_drawer.select_index.title')}</h3>
+                <Radio.Group onChange={onIndexChange} value={tempSettings.selectedIndex}>
+                    <Radio value="IndexIVFPQ">{t('settings_drawer.select_index.options.IndexIVFPQ')}</Radio>
+                    <Radio value="IndexFlatL2">{t('settings_drawer.select_index.options.IndexFlatL2')}</Radio>
+                    <Radio value="IndexIVFFlat">{t('settings_drawer.select_index.options.IndexIVFFlat')}</Radio>
+                </Radio.Group>
+            </div>
 
-        {/* Download Folder Name */}
-        <div style={sectionStyle}>
-            <Tooltip title="Enter the name of the folder you will download.">
-                <InfoCircleOutlined style={infoIconStyle} />
-            </Tooltip>
-            <h3>Download Folder Name</h3>
-            <Input
-                placeholder="Enter folder name"
-                value={tempSettings.folderName}
-                onChange={onFolderNameChange}
-                style={{ width: '100%' }}
-            />
-        </div>
+            {/* Select Device */}
+            <div style={sectionStyle}>
+                <Tooltip title={t('settings_drawer.select_device.tooltip')}>
+                    <InfoCircleOutlined style={infoIconStyle} />
+                </Tooltip>
+                <h3>{t('settings_drawer.select_device.title')}</h3>
+                <Radio.Group onChange={onDeviceChange} value={tempSettings.selectedDevice}>
+                    <Radio value="cpu">{t('settings_drawer.select_device.options.cpu')}</Radio>
+                    <Radio value="gpu">{t('settings_drawer.select_device.options.gpu')}</Radio>
+                </Radio.Group>
+            </div>
 
-        {/* Save Settings */}
-        <div style={{ marginTop: '20px' }}>
-            <PrimaryButton type="primary" onClick={onSaveSettings}>
-                Save Settings
-            </PrimaryButton>
-        </div>
-    </Drawer>
-);
+            {/* Download Folder Name */}
+            <div style={sectionStyle}>
+                <Tooltip title={t('settings_drawer.folder_name.tooltip')}>
+                    <InfoCircleOutlined style={infoIconStyle} />
+                </Tooltip>
+                <h3>{t('settings_drawer.folder_name.title')}</h3>
+                <Input
+                    placeholder={t('settings_drawer.folder_name.placeholder')}
+                    value={tempSettings.folderName}
+                    onChange={onFolderNameChange}
+                    style={{ width: '100%' }}
+                />
+            </div>
+
+            {/* Save Settings */}
+            <div style={{ marginTop: '20px' }}>
+                <PrimaryButton type="primary" onClick={onSaveSettings}>
+                    {t('settings_drawer.save_button')}
+                </PrimaryButton>
+            </div>
+        </Drawer>
+    );
+};
 
 const sectionStyle = {
     border: '1px solid #ccc',
