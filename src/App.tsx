@@ -30,49 +30,53 @@ const showBackendError = (
     err: unknown,
     fallback = i18n.t('msg_unexpected_error')
 ) => {
-    if (axios.isAxiosError(err)) {
-        const specific =
+  if (axios.isAxiosError(err)) {
+    const specific =
             (err.response?.data as any)?.error ||
             (err.response?.data as any)?.message ||
-            err.message;
+      err.message;
 
-        message.error(specific || fallback, 4);
-        return;
-    }
-
-    message.error(fallback, 4);
+    message.error(specific || fallback, 4);
+    return;
+  }
+  if (err instanceof Error) {
+    message.error(err.message || fallback, 4);
+    return;
+  }
+  message.error(fallback, 4);
 };
 
+const LOCAL_STORAGE_KEY = 'savedUrls';
 export const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 
 function App() {
     const { t, i18n } = useTranslation();
     const currentLang = i18n.language;
 
-    const [query, setQuery] = useState('');
-    const [modalVisible, setModalVisible] = useState(false);
+  const [query, setQuery] = useState('');
+  const [modalVisible, setModalVisible] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState<string | null>('IndexFlatL2');
-    const [url, setUrl] = useState('');
-    const [savedUrls, setSavedUrls] = useState<string[]>([]);
-    const [imageUrls, setImageUrls] = useState<{ name: string; data: string }[]>([]);
-    const [showImages, setShowImages] = useState(false);
-    const [k, setk] = useState<number | null>(1);
-    const [loading, setLoading] = useState(false);
-    const [showHowtoUse, setShowHowtoUse] = useState(false);
-    const [threshold, setThreshold] = useState<number | null>(0);
-    const [suggestedQuery, setSuggestedQuery] = useState<string | null>(null);
-    const [selectedDevice, setSelectedDevice] = useState('cpu');
-    const [openModal, setOpenModal] = useState(false);
+  const [url, setUrl] = useState('');
+  const [savedUrls, setSavedUrls] = useState<string[]>([]);
+  const [imageUrls, setImageUrls] = useState<{ name: string; data: string }[]>([]);
+  const [showImages, setShowImages] = useState(false);
+  const [k, setk] = useState<number | null>(1);
+  const [loading, setLoading] = useState(false);
+  const [showHowtoUse, setShowHowtoUse] = useState(false);
+  const [threshold, setThreshold] = useState<number | null>(0);
+  const [suggestedQuery, setSuggestedQuery] = useState<string | null>(null);
+  const [selectedDevice, setSelectedDevice] = useState('cpu');
+  const [openModal, setOpenModal] = useState(false);
 
-    const [tempSettings, setTempSettings] = useState({
-        selectedIndex: selectedIndex,
-        url: url,
-        k: k,
-        threshold: threshold,
-        selectedDevice: selectedDevice,
-        savedUrls: savedUrls,
-        folderName: 'images',
-    });
+  const [tempSettings, setTempSettings] = useState({
+    selectedIndex: selectedIndex,
+    url: url,
+    k: k,
+    threshold: threshold,
+    selectedDevice: selectedDevice,
+    savedUrls: savedUrls,
+    folderName: 'images',
+  });
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -136,12 +140,21 @@ function App() {
         setSuggestedQuery(null);
         try {
             const response = await axios.post(`${BACKEND_URL}/predict`, requestData);
+            const data = response.data;
+
+            if (data.warnings && data.warnings.length > 0) {
+                console.warn("Backend warnings:", data.warnings);
+                throw new Error("Some issues occurred: " + data.warnings.join(", "));
+            }
+
             const images = response.data.images.map((image: { name: string; data: string }) => ({
                 name: image.name,
                 data: `data:image/jpeg;base64,${image.data}`,
             }));
+
             setImageUrls(images);
             setShowImages(true);
+
             if (newQuery !== response.data.query) {
                 setSuggestedQuery(response.data.query);
             }
@@ -165,21 +178,21 @@ function App() {
         saveAs(content, `${folderName}.zip`);
     };
 
-    const handleSaveSettings = async () => {
-        setSelectedIndex(tempSettings.selectedIndex);
-        setUrl(tempSettings.url);
-        setk(tempSettings.k);
-        setThreshold(tempSettings.threshold);
-        setSelectedDevice(tempSettings.selectedDevice);
+  const handleSaveSettings = async () => {
+    setSelectedIndex(tempSettings.selectedIndex);
+    setUrl(tempSettings.url);
+    setk(tempSettings.k);
+    setThreshold(tempSettings.threshold);
+    setSelectedDevice(tempSettings.selectedDevice);
 
-        const settings = {
-            k: tempSettings.k,
-            selectedIndex: tempSettings.selectedIndex,
-            url: tempSettings.url,
-            threshold: tempSettings.threshold,
-            selectedDevice: tempSettings.selectedDevice,
-            savedUrls: tempSettings.savedUrls,
-        };
+    const settings = {
+      k: tempSettings.k,
+      selectedIndex: tempSettings.selectedIndex,
+      url: tempSettings.url,
+      threshold: tempSettings.threshold,
+      selectedDevice: tempSettings.selectedDevice,
+      savedUrls: tempSettings.savedUrls,
+    };
 
         try {
             const response = await fetch(`${BACKEND_URL}/settings`, {
