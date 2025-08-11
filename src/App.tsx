@@ -99,7 +99,7 @@ function App() {
                     selectedDevice: data.selectedDevice || '',
                 }));
                 setUrl(data.url);
-                setSavedUrls(Array.isArray(data.recent_paths) ? data.recent_paths : []);
+                setSavedUrls(Array.isArray(data.savedUrls) ? data.savedUrls : []);
                 setk(data.k || 1);
                 setSelectedIndex(data.selectedIndex || null);
                 setThreshold(data.threshold || 0);

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Tooltip, Input, Radio, InputNumber, Slider } from 'antd';
+import { Tooltip, Input, Radio, InputNumber, Slider, Select } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
 import PrimaryButton from './PrimaryButton';
 import { useTranslation } from 'react-i18next';
@@ -81,17 +81,18 @@ const HomePageSettings: React.FC<HomePageSettingsProps> = ({ url, setUrl, savedU
             size="small"
           />
 
-          <Radio.Group
-            onChange={(e) => setUrl(e.target.value)}
+          <Select
             value={url}
-            style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}
+            onChange={(value) => setUrl(value)}
+            placeholder="Select a saved URL"
+            style={{ width: '100%' }}
           >
             {savedUrls.map((savedUrl, index) => (
-              <Radio key={index} value={savedUrl}>
+              <Select.Option key={index} value={savedUrl}>
                 {savedUrl}
-              </Radio>
+              </Select.Option>
             ))}
-          </Radio.Group>
+          </Select>
 
           <input
             id="folderInput"
