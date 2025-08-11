@@ -53,30 +53,31 @@ function App() {
     const { t, i18n } = useTranslation();
     const currentLang = i18n.language;
 
-  const [query, setQuery] = useState('');
-  const [modalVisible, setModalVisible] = useState(false);
+    const [query, setQuery] = useState('');
+    const [modalVisible, setModalVisible] = useState(false);
     const [selectedIndex, setSelectedIndex] = useState<string | null>('IndexFlatL2');
-  const [url, setUrl] = useState('');
-  const [savedUrls, setSavedUrls] = useState<string[]>([]);
-  const [imageUrls, setImageUrls] = useState<{ name: string; data: string }[]>([]);
-  const [showImages, setShowImages] = useState(false);
-  const [k, setk] = useState<number | null>(1);
-  const [loading, setLoading] = useState(false);
-  const [showHowtoUse, setShowHowtoUse] = useState(false);
-  const [threshold, setThreshold] = useState<number | null>(0);
-  const [suggestedQuery, setSuggestedQuery] = useState<string | null>(null);
-  const [selectedDevice, setSelectedDevice] = useState('cpu');
-  const [openModal, setOpenModal] = useState(false);
-
-  const [tempSettings, setTempSettings] = useState({
-    selectedIndex: selectedIndex,
-    url: url,
-    k: k,
-    threshold: threshold,
-    selectedDevice: selectedDevice,
-    savedUrls: savedUrls,
-    folderName: 'images',
-  });
+    const [url, setUrl] = useState('');
+    const [savedUrls, setSavedUrls] = useState<string[]>([]);
+    const [imageUrls, setImageUrls] = useState<{ name: string; data: string }[]>([]);
+    const [showImages, setShowImages] = useState(false);
+    const [k, setk] = useState<number | null>(1);
+    const [loading, setLoading] = useState(false);
+    const [showHowtoUse, setShowHowtoUse] = useState(false);
+    const [threshold, setThreshold] = useState<number | null>(0);
+    const [suggestedQuery, setSuggestedQuery] = useState<string | null>(null);
+    const [selectedDevice, setSelectedDevice] = useState('cpu');
+    const [openModal, setOpenModal] = useState(false);
+    
+    const [tempSettings, setTempSettings] = useState({
+      selectedIndex: selectedIndex,
+      url: url,
+      k: k,
+      threshold: threshold,
+      selectedDevice: selectedDevice,
+      savedUrls: savedUrls,
+      folderName: 'images',
+      language: currentLang,
+    });
 
     useEffect(() => {
         const fetchSettings = async () => {
@@ -97,6 +98,7 @@ function App() {
                     url: data.url || '',
                     threshold: data.threshold || 0,
                     selectedDevice: data.selectedDevice || '',
+                    language: data.language || currentLang,
                 }));
                 setUrl(data.url);
                 setSavedUrls(Array.isArray(data.recent_paths) ? data.recent_paths : []);
@@ -104,6 +106,10 @@ function App() {
                 setSelectedIndex(data.selectedIndex || null);
                 setThreshold(data.threshold || 0);
                 setSelectedDevice(data.selectedDevice || '');
+
+                if (data.language && data.language !== i18n.language) {
+                    i18n.changeLanguage(data.language);
+                }
             } catch (error) {
                 console.error(error);
                 showBackendError(error, t('msg_failed_load_settings'));
@@ -192,6 +198,7 @@ function App() {
       threshold: tempSettings.threshold,
       selectedDevice: tempSettings.selectedDevice,
       savedUrls: tempSettings.savedUrls,
+      language: tempSettings.language,
     };
 
         try {
@@ -313,6 +320,7 @@ function App() {
                         selectedDevice: selectedDevice,
                         savedUrls: savedUrls,
                         folderName: tempSettings.folderName,
+                        language: currentLang,
                     });
                     setModalVisible(true);
                 }}
