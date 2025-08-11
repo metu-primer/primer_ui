@@ -7,7 +7,7 @@
 import React from 'react';
 import { Drawer, Tooltip, Radio, Input } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
-import PrimaryButton from './PrimaryButton';
+import PrimaryButton from './Buttons/PrimaryButton';
 import { useTranslation } from 'react-i18next';
 
 interface SettingsDrawerProps {

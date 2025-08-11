@@ -1,9 +1,9 @@
 import React from 'react';
 import { Tooltip, Input, Radio, InputNumber, Slider } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
-import PrimaryButton from './PrimaryButton';
 import { useTranslation } from 'react-i18next';
 import { BACKEND_URL } from '../App';
+import SecondaryButton from './Buttons/SecondaryButton';
 
 interface HomePageSettingsProps {
   url: string;
@@ -107,12 +107,12 @@ const HomePageSettings: React.FC<HomePageSettingsProps> = ({ url, setUrl, savedU
             style={{ display: 'none' }}
           />
 
-          <PrimaryButton
+          <SecondaryButton
             onClick={handleSelectFolder}
-            style={{ width: '100%', marginTop: '8px' }}
+            style={{ width: '100%', marginTop: '8px'}}
           >
             Select Folder
-          </PrimaryButton>
+          </SecondaryButton>
         </div>
 
         {/* Threshold */}

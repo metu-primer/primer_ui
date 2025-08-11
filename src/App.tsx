@@ -9,7 +9,7 @@ import axios from 'axios';
 import JSZip from 'jszip';
 import { saveAs } from 'file-saver';
 import { Button, message } from 'antd';
-import PrimaryButton from './components/PrimaryButton';
+import PrimaryButton from './components/Buttons/PrimaryButton';
 import { QuestionCircleOutlined } from '@ant-design/icons';
 import { RadioChangeEvent } from 'antd/es/radio';
 import trFlag from './assets/turkey.png';
@@ -25,6 +25,7 @@ import SearchBar from './components/SearchBar';
 import ImagesDisplay from './components/ImagesDisplay';
 import SettingsDrawer from './components/SettingsDrawer';
 import HomePageSettings from './components/HomePageSettings';
+import InformationalButton from './components/Buttons/InformationalButton';
 
 const showBackendError = (
     err: unknown,
@@ -289,7 +290,7 @@ function App() {
 
 
 
-            <PrimaryButton
+            <InformationalButton
                 type="link"
                 icon={<QuestionCircleOutlined />}
                 onClick={() => setShowHowtoUse(!showHowtoUse)}
@@ -301,7 +302,7 @@ function App() {
                 }}
             >
                 {t('how_to_use')}
-            </PrimaryButton>
+            </InformationalButton>
 
             <Header
                 onSettingsClick={() => {

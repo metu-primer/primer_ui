@@ -5,7 +5,7 @@
 // https://creativecommons.org/licenses/by-nc/4.0/
 
 import React from 'react';
-import PrimaryButton from './PrimaryButton';
+import PrimaryButton from './Buttons/PrimaryButton';
 import { useTranslation } from 'react-i18next';
 
 interface ImagesDisplayProps {
