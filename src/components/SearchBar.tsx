@@ -6,7 +6,7 @@
 
 import React from 'react';
 import { Spin, Tooltip } from 'antd';
-import PrimaryButton from './PrimaryButton';
+import PrimaryButton from './Buttons/PrimaryButton';
 import { useTranslation } from 'react-i18next';
 
 interface SearchBarProps {

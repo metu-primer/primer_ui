@@ -7,14 +7,14 @@
 import React from 'react';
 import { Button, ButtonProps } from 'antd';
 
-const PrimaryButton: React.FC<ButtonProps> = (props) => {
+const InformationalButton: React.FC<ButtonProps> = (props) => {
   return (
     <Button
       {...props}
       style={{
-        backgroundColor: '#ffffff',      
-        borderColor: '#1890ff',         
-        color: '#1890ff',               
+        backgroundColor: '#4DA3FF',      
+        borderColor: '#4DA3FF',         
+        color: '#ffffff',               
         borderRadius: '8px',
         fontSize: '16px',
         fontWeight: 500,
@@ -28,4 +28,4 @@ const PrimaryButton: React.FC<ButtonProps> = (props) => {
   );
 };
 
-export default PrimaryButton;
+export default InformationalButton;

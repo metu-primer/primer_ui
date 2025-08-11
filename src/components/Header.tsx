@@ -5,10 +5,11 @@
 // https://creativecommons.org/licenses/by-nc/4.0/
 
 import React from 'react';
-import PrimaryButton from './PrimaryButton';
+import PrimaryButton from './Buttons/PrimaryButton';
 import { SettingOutlined } from '@ant-design/icons';
 import logo from '../assets/ceng-logo.png';
 import { useTranslation } from 'react-i18next';
+import SecondaryButton from './Buttons/SecondaryButton';
 
 interface HeaderProps {
     onSettingsClick: () => void;
@@ -53,7 +54,7 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => {
                 {t('header.subtitle')}
             </p>
 
-            <PrimaryButton
+            <SecondaryButton
                 type="link"
                 icon={<SettingOutlined />}
                 onClick={onSettingsClick}
@@ -64,7 +65,7 @@ const Header: React.FC<HeaderProps> = ({ onSettingsClick }) => {
                 }}
             >
                 {t('header.settings')}
-            </PrimaryButton>
+            </SecondaryButton>
         </header>
     );
 };
