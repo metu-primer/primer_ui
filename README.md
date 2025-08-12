@@ -87,11 +87,11 @@ This project is licensed under the Creative Commons Attribution-NonCommercial 4.
 
 ## Contributors
 
-- [@sinankalkan](https://github.com/sinankalkan)
-- [@ahmetkilavuz](https://github.com/kilavuza)
-- [@alperenovak](https://github.com/alperenovak)
-- [@aliozcelik](https://github.com/aliozcelik)
-- [@feyzayavuz](https://github.com/blisgard)
+- [Sinan Kalkan](https://github.com/sinankalkan)
+- [Ahmet Kılavuz](https://github.com/kilavuza)
+- [Alperen Ovak](https://github.com/alperenovak)
+- [Ali Özçelik](https://github.com/aliozcelik)
+- [Feyza Yavuz](https://github.com/blisgard)
 
 ---
 For backend setup and API documentation, refer to the backend repository or contact the maintainers.
