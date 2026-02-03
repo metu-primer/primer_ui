@@ -1,6 +1,6 @@
-import React from 'react';
-import { Tooltip, Input, Radio, InputNumber, Slider, Select } from 'antd';
-import { InfoCircleOutlined } from '@ant-design/icons';
+import React, { useState, useEffect } from 'react';
+import { Tooltip, Input, Radio, InputNumber, Slider, Select, Tag, message } from 'antd';
+import { InfoCircleOutlined, UserOutlined } from '@ant-design/icons';
 import { useTranslation } from 'react-i18next';
 import { BACKEND_URL } from '../App';
 import SecondaryButton from './Buttons/SecondaryButton';
@@ -13,14 +13,17 @@ interface HomePageSettingsProps {
   setk: (value: number) => void;
   threshold: number | null;
   setThreshold: (value: number) => void;
+  faceFilter: string[];
+  setFaceFilter: (faces: string[]) => void;
+  refreshTrigger?: number;
 }
 
 const sectionStyle = {
   border: '1px solid #ccc',
   padding: '8px',
   borderRadius: '6px',
-  width: '30%',
-  minWidth: '200px',
+  width: '23%',
+  minWidth: '180px',
   position: 'relative' as const,
 };
 
@@ -33,18 +36,76 @@ const infoIconStyle = {
   fontSize: '14px',
 };
 
-const HomePageSettings: React.FC<HomePageSettingsProps> = ({ url, setUrl, savedUrls, k, setk, threshold, setThreshold }) => {
+const HomePageSettings: React.FC<HomePageSettingsProps> = ({
+  url,
+  setUrl,
+  savedUrls,
+  k,
+  setk,
+  threshold,
+  setThreshold,
+  faceFilter,
+  setFaceFilter,
+  refreshTrigger
+}) => {
     const { t } = useTranslation();
+    const [availableFaces, setAvailableFaces] = useState<string[]>([]);
+    const [hasMetadata, setHasMetadata] = useState(false);
+    const [loadingFaces, setLoadingFaces] = useState(false);
+
+    // Fetch available faces when URL changes
+    useEffect(() => {
+        console.log('[FACE FILTER DEBUG] useEffect triggered - url:', url, 'refreshTrigger:', refreshTrigger);
+        if (url) {
+            fetchFaceMetadata(url);
+        } else {
+            console.log('[FACE FILTER DEBUG] No URL set, clearing face data');
+            setAvailableFaces([]);
+            setHasMetadata(false);
+        }
+    }, [url, refreshTrigger]);
+
+    const fetchFaceMetadata = async (folder: string) => {
+        console.log('[FACE FILTER DEBUG] Fetching metadata for folder:', folder);
+        setLoadingFaces(true);
+        try {
+            const response = await fetch(`${BACKEND_URL}/face/metadata?folder=${encodeURIComponent(folder)}`);
+            const data = await response.json();
+            console.log('[FACE FILTER DEBUG] Metadata response:', data);
+
+            if (data.success) {
+                setHasMetadata(data.hasMetadata);
+                setAvailableFaces(data.faces || []);
+                console.log('[FACE FILTER DEBUG] Has metadata:', data.hasMetadata, 'Faces:', data.faces);
+
+                // Clear filter if selected faces are no longer available
+                if (data.hasMetadata && faceFilter.length > 0) {
+                    const validFaces = faceFilter.filter(f => data.faces.includes(f));
+                    if (validFaces.length !== faceFilter.length) {
+                        setFaceFilter(validFaces);
+                    }
+                }
+            } else {
+                setHasMetadata(false);
+                setAvailableFaces([]);
+                console.log('[FACE FILTER DEBUG] No metadata or failed');
+            }
+        } catch (error) {
+            console.error('[FACE FILTER DEBUG] Error fetching face metadata:', error);
+            setHasMetadata(false);
+            setAvailableFaces([]);
+        } finally {
+            setLoadingFaces(false);
+        }
+    };
 
     const handleSelectFolder = async () => {
       const res = await fetch(`${BACKEND_URL}/select-folder`);
       const data = await res.json();
       if (data.path) {
-        setUrl(data.path); // Set the selected folder path to the URL state
-        // TODO Ahmet: give success message
+        setUrl(data.path);
       } else {
         console.log("No folder selected");
-        // TODO Ahmet: give error message
       }
     };
 
@@ -130,6 +191,46 @@ const HomePageSettings: React.FC<HomePageSettingsProps> = ({ url, setUrl, savedU
             onChange={setThreshold}
             style={{ width: '100%' }}
           />
+        </div>
+
+        {/* Face Filter */}
+        <div style={sectionStyle}>
+          <Tooltip title={t('home_page_settings.tooltip_face_filter')}>
+            <InfoCircleOutlined style={infoIconStyle} />
+          </Tooltip>
+          <h4 style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+            <UserOutlined />
+            {t('home_page_settings.face_filter')}
+          </h4>
+
+          {hasMetadata ? (
+            <>
+              <Select
+                mode="multiple"
+                placeholder={t('home_page_settings.select_faces')}
+                value={faceFilter}
+                onChange={setFaceFilter}
+                style={{ width: '100%' }}
+                loading={loadingFaces}
+                size="small"
+                maxTagCount={2}
+                options={availableFaces.map(face => ({ label: face, value: face }))}
+              />
+              {faceFilter.length > 0 && (
+                <div style={{ marginTop: '4px', fontSize: '11px', color: '#52c41a' }}>
+                  {t('home_page_settings.filtering_by_faces', { count: faceFilter.length })}
+                </div>
+              )}
+            </>
+          ) : (
+            <div style={{ fontSize: '12px', color: '#999' }}>
+              {url ? (
+                <span>{t('home_page_settings.no_face_metadata')}</span>
+              ) : (
+                <span>{t('home_page_settings.select_folder_first')}</span>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>

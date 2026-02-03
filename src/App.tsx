@@ -68,7 +68,9 @@ function App() {
     const [suggestedQuery, setSuggestedQuery] = useState<string | null>(null);
     const [selectedDevice, setSelectedDevice] = useState('cpu');
     const [openModal, setOpenModal] = useState(false);
-    
+    const [faceFilter, setFaceFilter] = useState<string[]>([]); // NEW: face filter state
+    const [faceMetadataRefreshKey, setFaceMetadataRefreshKey] = useState(0);
+
     const [tempSettings, setTempSettings] = useState({
       selectedIndex: selectedIndex,
       url: url,
@@ -140,6 +142,7 @@ function App() {
             threshold: threshold,
             selectedDevice: selectedDevice,
             k: k,
+            faceFilter: faceFilter.length > 0 ? faceFilter : undefined, // NEW: include face filter
         };
 
         setSavedUrls(requestData.url);
@@ -165,7 +168,13 @@ function App() {
             if (newQuery !== response.data.query) {
                 setSuggestedQuery(response.data.query);
             }
-            message.success(t('msg_images_fetched'));
+
+            // Show success message with face filter info if applicable
+            if (faceFilter.length > 0) {
+                message.success(t('msg_images_fetched_with_filter', { count: images.length, faces: faceFilter.join(', ') }));
+            } else {
+                message.success(t('msg_images_fetched'));
+            }
         } catch (error) {
             console.error(error);
             showBackendError(error, t('msg_failed_fetch_images'));
@@ -220,7 +229,9 @@ function App() {
                 throw new Error(`${t('msg_backend_issues_prefix')}${result.warnings.join(', ')}`);
             }
 
+            console.log('[FACE FILTER DEBUG] Settings saved, incrementing refresh key');
             setModalVisible(false);
+            setFaceMetadataRefreshKey(prev => prev + 1);
             message.success(result.message || t('msg_settings_saved'));
         } catch (error) {
             console.error(error);
@@ -345,6 +356,9 @@ function App() {
                     setk={setk}
                     threshold={threshold}
                     setThreshold={setThreshold}
+                    faceFilter={faceFilter}
+                    setFaceFilter={setFaceFilter}
+                    refreshTrigger={faceMetadataRefreshKey}
                 />
 
                 <SearchBar
@@ -379,7 +393,12 @@ function App() {
 
             <SettingsDrawer
                 visible={modalVisible}
-                onClose={() => setModalVisible(false)}
+                onClose={() => {
+                    console.log('[FACE FILTER DEBUG] Settings drawer closing, incrementing refresh key');
+                    setModalVisible(false);
+                    setFaceMetadataRefreshKey(prev => prev + 1);
+                }}
+                currentSearchUrl={url}
                 tempSettings={tempSettings}
                 onIndexChange={(e: RadioChangeEvent) =>
                     setTempSettings((prev) => ({ ...prev, selectedIndex: e.target.value }))
